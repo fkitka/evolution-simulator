@@ -11,7 +11,7 @@ import javafx.util.Pair;
 
 import java.util.Arrays;
 
-public class MapElementStatistics {
+public class GuiMapStatistics {
     private final AbstractWorldMap map;
 
     private final XYChart.Series<Number, Number> averageLifespanSeries;
@@ -24,7 +24,7 @@ public class MapElementStatistics {
     protected Pair<int[], Integer> dominantGenotype;
 
 
-    public MapElementStatistics(AbstractWorldMap map) {
+    public GuiMapStatistics(AbstractWorldMap map) {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         this.map = map;

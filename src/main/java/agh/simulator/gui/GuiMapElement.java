@@ -3,15 +3,14 @@ package agh.simulator.gui;
 import agh.simulator.Animal;
 import agh.simulator.Plant;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 
-public class GuiMapElement extends Label {
+public class GuiMapElement {
     private final Object object;
     private Color color;
     public GuiMapElement(Object object){
@@ -19,11 +18,10 @@ public class GuiMapElement extends Label {
         this.color = setColor();
     }
 
-    public Label getElementLabel(){
-        Label objectLabel = new Label();
-        objectLabel.setAlignment(Pos.CENTER);
-        objectLabel.setBackground(new Background(new BackgroundFill(this.color, CornerRadii.EMPTY, Insets.EMPTY)));
-        return objectLabel;
+    public Pane getElementPane(){
+        Pane pane = new Pane();
+        pane.setBackground(new Background(new BackgroundFill(this.color, CornerRadii.EMPTY, Insets.EMPTY)));
+        return pane;
     }
 
     public Color setColor(){
@@ -32,7 +30,10 @@ public class GuiMapElement extends Label {
         }
         if (object instanceof Animal animal){
             int energy = animal.getEnergy();
-            if (energy <= 20){
+            if (animal.hasDominantGenotype()){
+                this.color = Color.rgb(143, 46, 8);
+            }
+            else if (energy <= 20){
                 this.color = Color.rgb(151, 155, 148);
             }
             else if (energy <= 30){

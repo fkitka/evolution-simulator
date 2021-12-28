@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class WrappedMapTest {
     @Test
     void wrappedBounds(){
-        AbstractWorldMap map = new WrappedMap(0.1, 10, 10);
-        Animal animal = new Animal(new Vector2d(8,8), map);
+        AbstractWorldMap map = new WrappedMap(0.1, 10, 10, 100, 100);
+        Animal animal = new Animal(new Vector2d(8,8), map, 100, 0);
         map.place(animal);
 
         animal.getGenotype().genes = new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};

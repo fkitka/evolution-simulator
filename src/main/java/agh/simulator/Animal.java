@@ -1,6 +1,7 @@
 package agh.simulator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Animal {
@@ -14,6 +15,8 @@ public class Animal {
     private final List<IPositionChangeObserver> observers = new ArrayList<>();
     private int numOfChildren;
     private int age;
+    private int birthEra;
+    private int deathEra = 0;
 
     public Animal(Vector2d position, AbstractWorldMap map, int initialEnergy, int moveEnergy){
         this.position = position;
@@ -78,8 +81,6 @@ public class Animal {
                     newPosition = this.position.substract(this.orientation.toUnitVector());
                     moveToPosition(newPosition);
                 }
-//            case LEFT -> this.orientation = this.orientation.previous();
-//            case RIGHT -> this.orientation = this.orientation.next();
             }
         }
         this.energy -= moveEnergy;
@@ -122,6 +123,9 @@ public class Animal {
         other.numOfChildren += 1;
         return child;
     }
+    public boolean hasDominantGenotype(){
+        return Arrays.equals(map.statistics.getDominantGenotype().getKey(), genotype.genes);
+    }
 
     public MapDirection getOrientation() {
         return orientation;
@@ -129,6 +133,18 @@ public class Animal {
 
     public int getNumOfChildren() {
         return numOfChildren;
+    }
+
+    public void setBirthEra(int birthEra) {
+        this.birthEra = birthEra;
+    }
+
+    public void setDeathEra(int deathEra) {
+        this.deathEra = deathEra;
+    }
+
+    public int getDeathEra() {
+        return deathEra;
     }
 }
 

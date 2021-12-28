@@ -7,6 +7,7 @@ public class SimulationEngine implements IEngine, Runnable {
     private final AbstractWorldMap map;
     private final List<IMapObserver> observers = new ArrayList<>();
     private boolean isStopRequested = false;
+    public boolean isRunning = true;
     private int initialEnergy;
     private int moveEnergy;
     public int era = 1;
@@ -15,6 +16,7 @@ public class SimulationEngine implements IEngine, Runnable {
         for(int i = 0; i < animalAmount; i++){
             Animal animal = new Animal(randomPositions(), map, initialEnergy, moveEnergy);
             map.place(animal);
+            animal.setBirthEra(era);
         }
     }
 
@@ -26,10 +28,18 @@ public class SimulationEngine implements IEngine, Runnable {
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         while(map.animalList.size() > 0 && !isStopRequested){
+            synchronized (this){
+                while (!isRunning) {
+                    try {
+                        this.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
             map.removeDead();
-//            System.out.println("SIZE:"+map.animalList.size());
             for (Animal animal : map.animalList) {
                 animal.move();
             }
@@ -37,7 +47,6 @@ public class SimulationEngine implements IEngine, Runnable {
             map.reproduction();
             map.placePlants();
             era++;
-//            System.out.println(map);
             try {
                 Thread.sleep(300);
             } catch (InterruptedException e) {
@@ -55,5 +64,12 @@ public class SimulationEngine implements IEngine, Runnable {
 
     public void shutdown() {
         isStopRequested = true;
+    }
+    public void stop() {
+        isRunning = false;
+    }
+    public synchronized void start() {
+        this.notify();
+        isRunning = true;
     }
 }

@@ -3,6 +3,9 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.10'
 }
+application {
+    getMainClass().set('agh.simulator.World')
+}
 
 group 'org.example'
 version '1.0-SNAPSHOT'
