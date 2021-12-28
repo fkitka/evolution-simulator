@@ -1,23 +1,45 @@
 package agh.simulator;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
+    public Statistics statistics;
     protected Vector2d lowerLeft;
     protected Vector2d upperRight;
     protected final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<>();
     protected final List<Animal> animalList = new ArrayList<>();
     protected final Map<Vector2d, Plant> plants = new HashMap<>();
+    protected final List<Vector2d> emptyJunglePlantPositionsList = new ArrayList<>();
+    protected final List<Vector2d> emptySteppePlantPositionsList = new ArrayList<>();
+    protected final List<Animal> deadAnimalsList = new LinkedList<>();
+    private int plantEnergy;
     protected final Jungle jungle;
-    private final int startEnergy = 100;
+    private final int initialEnergy;
 
-    public AbstractWorldMap(double jungleRatio, int width, int height){
+    public AbstractWorldMap(double jungleRatio, int width, int height, int plantEnergy, int initialEnergy){
         this.upperRight = new Vector2d(width, height);
         this.lowerLeft = new Vector2d(0,0);
         this.jungle = new Jungle(jungleRatio, width, height);
+        this.plantEnergy = plantEnergy;
+        this.initialEnergy = initialEnergy;
+        this.statistics = new Statistics(this);
+        fillEmptyPositionsList();
         placePlants();
     }
+
+    private void fillEmptyPositionsList() {
+        for (int i = 0; i < upperRight.x; i++) {
+            for (int j = 0; j < upperRight.y; j++) {
+                if (jungle.isPositionInJungle(new Vector2d(i, j))){
+                    this.emptyJunglePlantPositionsList.add(new Vector2d(i, j));
+                }
+                else{
+                    this.emptySteppePlantPositionsList.add(new Vector2d(i, j));
+                }
+            }
+        }
+    }
+
     public Vector2d getLowerLeft(){
         return lowerLeft;
     }
@@ -34,25 +56,22 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     private int getRandom(int max){
         return (int) ((Math.random() * (max)));
     }
-    private Vector2d getRandomPosition(int xMinBound, int yMinBound, int xMaxBound, int yMaxBound) {
-        int x = getRandom(getUpperRight().x);
-        int y = getRandom(getUpperRight().y);
-        return new Vector2d(x, y);
-    }
-//TODO: optymalizacja -> losowanie z wolnych przestrzeni
-//TODO: kiedy wszystkie pozycje pelne to nie rosnie wiecej trawy
     public void placePlants() {
-        Vector2d newPosition = getRandomPosition(0, 0, getUpperRight().x, getUpperRight().y);
-        while (isOccupied(newPosition)) {
-            newPosition = getRandomPosition(0, 0, getUpperRight().x, getUpperRight().y);
-        }
-        plants.put(newPosition, new Plant(newPosition));
+        Vector2d newPosition;
+        int randomIndex;
 
-        newPosition = getRandomPosition(jungle.getLowerLeft().x, jungle.getLowerLeft().y, jungle.getUpperRight().x, jungle.getUpperRight().y);
-        while (isOccupied(newPosition)) {
-            newPosition = getRandomPosition(jungle.getLowerLeft().x, jungle.getLowerLeft().y, jungle.getUpperRight().x, jungle.getUpperRight().y);
+        if (emptySteppePlantPositionsList.size() > 0) {
+            randomIndex = getRandom(emptySteppePlantPositionsList.size());
+            newPosition = emptySteppePlantPositionsList.get(randomIndex);
+            plants.put(newPosition, new Plant(plantEnergy));
+            emptySteppePlantPositionsList.remove(newPosition);
         }
-        plants.put(newPosition, new Plant(newPosition));
+        if (emptyJunglePlantPositionsList.size() > 0) {
+            randomIndex = getRandom(emptyJunglePlantPositionsList.size());
+            newPosition = emptyJunglePlantPositionsList.get(randomIndex);
+            plants.put(newPosition, new Plant(plantEnergy));
+            emptyJunglePlantPositionsList.remove(newPosition);
+        }
     }
 
     public boolean isInBounds(Vector2d position){
@@ -64,10 +83,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             addAnimal(animal, animal.getPosition());
             animalList.add(animal);
             animal.addObserver(this);
+            this.statistics.updateGenotypeStatistics(animal.getGenotype().genes);
             return true;
         }
         return false;
     }
+
 
     public boolean isOccupied(Vector2d position) {
         return objectAt(position) != null;
@@ -121,6 +142,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 removeAnimal(animal, animal.getPosition());
                 animal.removeObserver(this);
                 animalList.remove(animal);
+                deadAnimalsList.add(animal);
             }
         }
     }
@@ -134,6 +156,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                     animal.eat(plant.getEnergy()/numOfAnimals);
                 }
                 plants.remove(position, plant);
+                if (jungle.isPositionInJungle(position)){
+                    emptyJunglePlantPositionsList.add(position);
+                }
+                else{
+                    emptySteppePlantPositionsList.add(position);
+                }
             }
         }
     }
@@ -157,10 +185,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 Collections.reverse(list);
                 Animal animal1 = list.get(index1);
                 Animal animal2 = list.get(index2);
-                if (animal1.getEnergy() > 0.5*startEnergy && animal2.getEnergy() > 0.5*startEnergy) {
+                if (animal1.getEnergy() > 0.5*initialEnergy && animal2.getEnergy() > 0.5*initialEnergy) {
                     Animal child = animal1.reproduce(animal2);
                     this.place(child);
-                    System.out.println("THERE IS NEW LIFE");
                 }
             }
         }
@@ -178,6 +205,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
         }
         return resultAnimals;
+    }
+
+    public Jungle getJungle() {
+        return jungle;
     }
 }
 

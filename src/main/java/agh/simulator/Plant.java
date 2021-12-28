@@ -1,10 +1,9 @@
 package agh.simulator;
 
 public class Plant {
-    private final Vector2d position;
-    private final int energy = 100;
-    public Plant(Vector2d position){
-        this.position = position;
+    private final int energy;
+    public Plant(int energy){
+        this.energy = energy;
     }
 
     @Override

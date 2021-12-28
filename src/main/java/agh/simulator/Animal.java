@@ -1,7 +1,6 @@
 package agh.simulator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Animal {
@@ -9,16 +8,22 @@ public class Animal {
     private MapDirection orientation = getRandomOrientation();
     private Vector2d position;
     private int energy;
-    private final int moveEnergy = 25;
+    private final int initialEnergy;
+    private final int moveEnergy;
     private final Genotype genotype;
     private final List<IPositionChangeObserver> observers = new ArrayList<>();
-    private int numOfChildren = 0;
+    private int numOfChildren;
+    private int age;
 
-    public Animal(Vector2d position, AbstractWorldMap map){
+    public Animal(Vector2d position, AbstractWorldMap map, int initialEnergy, int moveEnergy){
         this.position = position;
         this.map = map;
-        this.energy = 100;
+        this.energy = initialEnergy;
+        this.initialEnergy = initialEnergy;
+        this.moveEnergy = moveEnergy;
         this.genotype = new Genotype();
+        this.age = 0;
+        this.numOfChildren = 0;
     }
     public String toString() {
         return switch (this.orientation) {
@@ -78,6 +83,7 @@ public class Animal {
             }
         }
         this.energy -= moveEnergy;
+        this.age += 1;
     }
     private void moveToPosition(Vector2d position){
         if (map.canMoveTo(position)) {
@@ -90,6 +96,7 @@ public class Animal {
     }
     public int getEnergy() { return this.energy; }
     public Genotype getGenotype() { return this.genotype;}
+    public int getAge() { return this.age; }
 
     void addObserver(IPositionChangeObserver observer){
         observers.add(observer);
@@ -107,7 +114,7 @@ public class Animal {
         this.energy += energy;
     }
     public Animal reproduce(Animal other){
-        Animal child = new Animal(this.position, this.map);
+        Animal child = new Animal(this.position, this.map, this.initialEnergy, this.moveEnergy);
         child.genotype.inheritParentsGenotype(this, other);
         this.energy *= 0.75;
         other.energy *= 0.75;

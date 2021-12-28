@@ -25,4 +25,8 @@ public class Jungle{
         int posY = (mapHeight - height) / 2;
         return new Vector2d(posX, posY);
     }
+
+    public boolean isPositionInJungle(Vector2d position) {
+        return (position.follows(getLowerLeft()) && position.precedes(getUpperRight()));
+    }
 }

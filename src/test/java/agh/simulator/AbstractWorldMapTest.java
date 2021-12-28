@@ -7,21 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class AbstractWorldMapTest {
 
     @Test
-    void placePlants() {
-        AbstractWorldMap map = new WrappedMap(0.1 ,10, 10);
-
-        map.placePlants();
-
-        assertTrue(true);
-        //TODO: trawa na stepie i trawa w jungli
-    }
-
-    @Test
     void removeDead() {
-        AbstractWorldMap map = new WrappedMap(0.1 ,10, 10);
-        Animal animal1 = new Animal(new Vector2d(5,5), map);
-        Animal animal2 = new Animal(new Vector2d(5,5), map);
-        Animal animal3 = new Animal(new Vector2d(1,2), map);
+        AbstractWorldMap map = new WrappedMap(0.1 ,10, 10, 10, 100);
+        Animal animal1 = new Animal(new Vector2d(5,5), map, 100, 20);
+        Animal animal2 = new Animal(new Vector2d(5,5), map, 100, 20);
+        Animal animal3 = new Animal(new Vector2d(1,2), map, 100, 20);
         for (int i = 0; i < 10; i++) {
             animal1.move();
             animal2.move();
@@ -35,10 +25,10 @@ class AbstractWorldMapTest {
 
     @Test
     void eatPlants() {
-        AbstractWorldMap map = new WrappedMap(0.1, 10, 10);
-        Animal animal1 = new Animal(new Vector2d(5,5), map);
-        Animal animal2 = new Animal(new Vector2d(5, 5), map);
-        Plant plant = new Plant(new Vector2d(5,5));
+        AbstractWorldMap map = new WrappedMap(0.1, 10, 10, 10, 100);
+        Animal animal1 = new Animal(new Vector2d(5,5), map, 100, 20);
+        Animal animal2 = new Animal(new Vector2d(5, 5), map, 100, 20);
+        Plant plant = new Plant(10);
         int startEnergy = 100;
         int plantEnergy = 100;
 
@@ -53,11 +43,11 @@ class AbstractWorldMapTest {
 
     @Test
     void reproduction() {
-        AbstractWorldMap map = new WrappedMap(0.1, 10, 10);
-        Animal animal1 = new Animal(new Vector2d(5,5), map);
-        Animal animal2 = new Animal(new Vector2d(5, 5), map);
-        Animal animal3 = new Animal(new Vector2d(5, 5), map);
-        Animal animal4 = new Animal(new Vector2d(5, 5), map);
+        AbstractWorldMap map = new WrappedMap(0.1, 10, 10, 20, 100);
+        Animal animal1 = new Animal(new Vector2d(5,5), map, 100, 20);
+        Animal animal2 = new Animal(new Vector2d(5, 5), map, 100, 20);
+        Animal animal3 = new Animal(new Vector2d(5, 5), map, 100, 20);
+        Animal animal4 = new Animal(new Vector2d(5, 5), map, 100, 20);
 
         map.place(animal1);
         map.place(animal2);

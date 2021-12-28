@@ -1,8 +1,8 @@
 package agh.simulator;
 
 public class WrappedMap extends AbstractWorldMap implements IPositionChangeObserver{
-    public WrappedMap(double jungleRatio, int width, int height) {
-        super(jungleRatio, width, height);
+    public WrappedMap(double jungleRatio, int width, int height, int plantEnergy, int initialEnergy) {
+        super(jungleRatio, width, height, plantEnergy,  initialEnergy);
     }
     @Override
     public void positionChanged(Animal animal, Vector2d oldPosition, Vector2d newPosition) {
