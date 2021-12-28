@@ -8,19 +8,16 @@ public class SimulationEngine implements IEngine, Runnable {
     private final List<IMapObserver> observers = new ArrayList<>();
     private boolean isStopRequested = false;
     public boolean isRunning = true;
-    private int initialEnergy;
-    private int moveEnergy;
     public int era = 1;
     public SimulationEngine(AbstractWorldMap map, int animalAmount, int initialEnergy, int moveEnergy){
         this.map = map;
         for(int i = 0; i < animalAmount; i++){
-            Animal animal = new Animal(randomPositions(), map, initialEnergy, moveEnergy);
+            Animal animal = new Animal(getRandomPosition(), map, initialEnergy, moveEnergy);
             map.place(animal);
-            animal.setBirthEra(era);
         }
     }
 
-    private Vector2d randomPositions() {
+    private Vector2d getRandomPosition() {
         return new Vector2d(getRandom(map.upperRight.x), getRandom(map.upperRight.y));
     }
     private int getRandom(int max){
@@ -39,12 +36,19 @@ public class SimulationEngine implements IEngine, Runnable {
                     }
                 }
             }
-            map.removeDead();
+            map.removeDead(era);
             for (Animal animal : map.animalList) {
                 animal.move();
             }
             map.eatPlants();
             map.reproduction();
+            if(map.isMagic){
+                if(map.magicStrategy()) {
+                    for (IMapObserver observer : observers) {
+                        observer.magicWasMade();
+                    }
+                }
+            }
             map.placePlants();
             era++;
             try {

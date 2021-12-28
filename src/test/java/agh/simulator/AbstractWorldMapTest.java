@@ -17,7 +17,7 @@ class AbstractWorldMapTest {
             animal2.move();
             animal3.move();
         }
-        map.removeDead();
+        map.removeDead(1);
 
         assertEquals(0, map.animalList.size());
         assertEquals(0, map.animals.size());

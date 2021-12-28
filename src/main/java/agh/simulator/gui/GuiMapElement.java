@@ -31,7 +31,7 @@ public class GuiMapElement {
         if (object instanceof Animal animal){
             int energy = animal.getEnergy();
             if (animal.hasDominantGenotype()){
-                this.color = Color.rgb(143, 46, 8);
+                this.color = Color.rgb(200, 46, 8);
             }
             else if (energy <= 20){
                 this.color = Color.rgb(151, 155, 148);

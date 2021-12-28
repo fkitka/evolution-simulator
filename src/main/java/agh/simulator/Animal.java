@@ -6,6 +6,9 @@ import java.util.List;
 
 public class Animal {
     private final AbstractWorldMap map;
+    public boolean isTracked = false;
+    public List<Animal> descendants;
+    public int trackedChildrenNum;
     private MapDirection orientation = getRandomOrientation();
     private Vector2d position;
     private int energy;
@@ -15,7 +18,6 @@ public class Animal {
     private final List<IPositionChangeObserver> observers = new ArrayList<>();
     private int numOfChildren;
     private int age;
-    private int birthEra;
     private int deathEra = 0;
 
     public Animal(Vector2d position, AbstractWorldMap map, int initialEnergy, int moveEnergy){
@@ -95,7 +97,11 @@ public class Animal {
     public Vector2d getPosition() {
         return this.position;
     }
+    public void setPosition(Vector2d position) {
+        this.position = position;
+    }
     public int getEnergy() { return this.energy; }
+    protected void refillEnergy() { this.energy = this.initialEnergy; }
     public Genotype getGenotype() { return this.genotype;}
     public int getAge() { return this.age; }
 
@@ -124,7 +130,7 @@ public class Animal {
         return child;
     }
     public boolean hasDominantGenotype(){
-        return Arrays.equals(map.statistics.getDominantGenotype().getKey(), genotype.genes);
+        return Arrays.equals(map.statistics.getDominantGenotype().getKey(), this.genotype.genes);
     }
 
     public MapDirection getOrientation() {
@@ -135,10 +141,6 @@ public class Animal {
         return numOfChildren;
     }
 
-    public void setBirthEra(int birthEra) {
-        this.birthEra = birthEra;
-    }
-
     public void setDeathEra(int deathEra) {
         this.deathEra = deathEra;
     }
@@ -146,5 +148,6 @@ public class Animal {
     public int getDeathEra() {
         return deathEra;
     }
+
 }
 

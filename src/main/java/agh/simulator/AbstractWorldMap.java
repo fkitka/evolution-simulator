@@ -12,9 +12,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected final List<Vector2d> emptyJunglePlantPositionsList = new ArrayList<>();
     protected final List<Vector2d> emptySteppePlantPositionsList = new ArrayList<>();
     protected final List<Animal> deadAnimalsList = new LinkedList<>();
-    private int plantEnergy;
+    private final int plantEnergy;
     protected final Jungle jungle;
     private final int initialEnergy;
+    public boolean isMagic = false;
+    public int magicCounter = 3;
+    public Animal trackedAnimal = null;
 
     public AbstractWorldMap(double jungleRatio, int width, int height, int plantEnergy, int initialEnergy){
         this.upperRight = new Vector2d(width, height);
@@ -28,8 +31,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     private void fillEmptyPositionsList() {
-        for (int i = 0; i < upperRight.x; i++) {
-            for (int j = 0; j < upperRight.y; j++) {
+        for (int i = 0; i <= upperRight.x; i++) {
+            for (int j = 0; j <= upperRight.y; j++) {
                 if (jungle.isPositionInJungle(new Vector2d(i, j))){
                     this.emptyJunglePlantPositionsList.add(new Vector2d(i, j));
                 }
@@ -56,6 +59,11 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     private int getRandom(int max){
         return (int) ((Math.random() * (max)));
     }
+    private Vector2d getRandomPosition() {
+        return new Vector2d(getRandom(this.upperRight.x), getRandom(this.upperRight.y));
+    }
+
+
     public void placePlants() {
         Vector2d newPosition;
         int randomIndex;
@@ -134,7 +142,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             animals.put(position, list);
         }
     }
-    public void removeDead(){
+    public void removeDead(int era){
         List<Animal> iterateList = animalList;
         for (int i = 0; i < iterateList.size(); i++) {
             Animal animal = iterateList.get(i);
@@ -143,6 +151,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 animal.removeObserver(this);
                 animalList.remove(animal);
                 deadAnimalsList.add(animal);
+                if(animal.isTracked){
+                    animal.setDeathEra(era);
+                }
             }
         }
     }
@@ -166,6 +177,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
     }
     public void reproduction(){
+        List<Animal> animalsToPlace = new LinkedList<>();
         for (ArrayList<Animal> list : animals.values()) {
                 int topAnimalsSize = getTopAnimals(list).size();
                 int index1 = 0;
@@ -187,10 +199,57 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 Animal animal2 = list.get(index2);
                 if (animal1.getEnergy() > 0.5*initialEnergy && animal2.getEnergy() > 0.5*initialEnergy) {
                     Animal child = animal1.reproduce(animal2);
-                    this.place(child);
+                    animalsToPlace.add(child);
+                    if (trackedAnimal != null) {
+                        updateTrackedAnimal(animal1, child);
+                        updateTrackedAnimal(animal2, child);
+                    }
                 }
             }
         }
+        for (Animal animal : animalsToPlace){
+            this.place(animal);
+        }
+    }
+
+    private void updateTrackedAnimal(Animal animal, Animal child) {
+        if(animal.isTracked){
+            trackedAnimal.trackedChildrenNum += 1;
+            trackedAnimal.descendants.add(child);
+        }
+        if(isDescendantOfTracked(animal)){
+            trackedAnimal.descendants.add(child);
+        }
+    }
+
+    private boolean isDescendantOfTracked(Animal animal) {
+        for(Animal descendant : trackedAnimal.descendants){
+            if (animal == descendant){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean magicStrategy(){
+        if (magicCounter == 0) {
+            isMagic = false;
+        }
+        if (animalList.size() == 5) {
+            List<Animal> toPlace = new LinkedList<>();
+            for (Animal animal : animalList) {
+                Animal animal1 = animal;
+                animal1.setPosition(getRandomPosition());
+                animal1.refillEnergy();
+                toPlace.add(animal);
+            }
+            for (Animal animal : toPlace){
+                this.place(animal);
+            }
+            magicCounter--;
+            return true;
+        }
+        return false;
     }
     private ArrayList<Animal> getTopAnimals(ArrayList<Animal> animals){
         animals.sort(Comparator.comparing(Animal::getEnergy));
@@ -209,6 +268,13 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     public Jungle getJungle() {
         return jungle;
+    }
+
+    public void track(Animal animal) {
+        trackedAnimal = animal;
+        animal.isTracked = true;
+        animal.descendants = new LinkedList<>();
+        animal.trackedChildrenNum = 0;
     }
 }
 

@@ -8,6 +8,7 @@ import java.util.Map;
 public class Statistics {
     private final AbstractWorldMap map;
     protected Map<int[], Integer> genotypesOccurencies = new HashMap<>();
+    public int[] dominantGenotype;
 
     public Statistics(AbstractWorldMap map){
         this.map = map;
@@ -53,11 +54,12 @@ public class Statistics {
     }
     public Pair<int[], Integer> getDominantGenotype(){
         int maxOccurence = 0;
-        int[] maxOccurenceGenes = new int[0];
+        int[] maxOccurenceGenes = dominantGenotype;
         for (int[] genes : genotypesOccurencies.keySet()) {
             if (maxOccurence < genotypesOccurencies.get(genes)){
                 maxOccurence = genotypesOccurencies.get(genes);
                 maxOccurenceGenes = genes;
+                dominantGenotype = maxOccurenceGenes;
             }
         }
         return new Pair(maxOccurenceGenes, maxOccurence);
@@ -72,5 +74,4 @@ public class Statistics {
             this.genotypesOccurencies.put(genes, 1);
         }
     }
-
 }

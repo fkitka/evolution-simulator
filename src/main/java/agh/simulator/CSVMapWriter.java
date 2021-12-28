@@ -3,12 +3,12 @@ package agh.simulator;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-public class CSVWriter {
+public class CSVMapWriter {
     private final AbstractWorldMap map;
     private final StringBuilder title;
     private final StringBuilder eras;
     protected final StringBuilder document;
-    public CSVWriter(AbstractWorldMap map){
+    public CSVMapWriter(AbstractWorldMap map){
         this.map = map;
         this.title = generateTitle();
         this.eras = new StringBuilder();
